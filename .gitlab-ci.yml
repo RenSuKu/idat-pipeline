@@ -1,0 +1,45 @@
+image: maven:3.6.0-jdk-13
+
+stages:
+  - build
+  - test
+  - certify
+  - freeze_check
+  - deploy
+
+variables:
+  DEPLOY_ALLOWED_FROM: "2023-11-15"
+
+build:
+  stage: build
+  script:
+    - echo Compilando el proyecto...
+    - mvn clean install
+
+test:
+  stage: test
+  script:
+    - echo Ejecutando pruebas...
+    - mvn test
+
+certify:
+  stage: certify
+  script:
+    - echo  Simulando validación de QA...
+
+freeze_check:
+  stage: freeze_check
+  script:
+    - |
+      TODAY=$(date +%F)
+      if [[ "$TODAY" < "$DEPLOY_ALLOWED_FROM" ]]; then
+        echo  En congelamiento. Esperar hasta $DEPLOY_ALLOWED_FROM
+        exit 1
+      else
+        echo  Se permite el despliegue
+      fi
+
+deploy:
+  stage: deploy
+  script:
+    - echo Desplegando automáticamente a producción...
